@@ -2,8 +2,10 @@ from flask import Flask, request
 import numpy as np
 import pickle
 import json
-
+import os
 from sklearn import svm
+
+os.chdir("./app")
 
 # run flask app:
 # export FLASK_APP=api.py
@@ -50,6 +52,3 @@ def get_symptoms():
     with open(symptoms_filename, 'rb') as f:
         symptoms = pickle.load(f)
     return {"symptoms": symptoms}
-
-if __name__ == "__main__":
-    app.run()
