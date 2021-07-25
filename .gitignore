@@ -10,7 +10,7 @@
 
 # production
 /build
-*.txt
+todo.txt
 /venv
 
 # misc

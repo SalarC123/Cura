@@ -1,5 +1,9 @@
-from flask import Flask
+from flask import Flask, request
+import numpy as np
 import pickle
+import json
+
+from sklearn import svm
 
 # run flask app:
 # export FLASK_APP=api.py
@@ -11,23 +15,41 @@ import pickle
 app = Flask(__name__)
 
 model_filename = "svm_clf.pkl"
+symptoms_filename = "symptoms.pkl"
 
-@app.route('/model')
+@app.route('/model', methods=['POST', 'GET'])
 def get_prediction():
-    with open(model_filename, 'rb') as f:
-        data = pickle.load(f)
-        svm_clf = data["svm_clf"]
-        symptoms = data["symptoms"]
+    if request.method == 'POST':
 
-        print(svm_clf)
-        print(symptoms)
-    
-    # svm_clf.predict([np.ones_like(active_symptoms)])
-    return {data: symptoms}
+        data = json.loads(request.data)
+
+        with open(symptoms_filename, 'rb') as f:
+            symptoms = pickle.load(f)
+
+        with open(model_filename, 'rb') as f:
+            svm_clf = pickle.load(f)
+        
+        # svm_clf.predict([np.ones_like(active_symptoms)])
+
+        label_encoded_symptoms = np.zeros_like(symptoms, dtype='int')
+
+        for user_symptom in data["user_symptoms"]:
+            for index, symptom in enumerate(symptoms):
+                if user_symptom == symptom:
+                    label_encoded_symptoms[index] = 1
+
+        disease = svm_clf.predict([label_encoded_symptoms])
+
+
+        return {"disease": disease[0]}
+    else:
+        return {}
 
 @app.route('/symptoms')
 def get_symptoms():
-    return {}
+    with open(symptoms_filename, 'rb') as f:
+        symptoms = pickle.load(f)
+    return {"symptoms": symptoms}
 
 if __name__ == "__main__":
     app.run()
