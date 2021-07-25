@@ -8,7 +8,7 @@ function App() {
 	const [selectedSymptoms, setSelectedSymptoms] = useState([])
 
 	useEffect(() => {
-		fetch(process.env.REACT_APP_HEROKU_URL + "/symptoms")
+		fetch("/api/symptoms")
 		.then(res => res.json())
 		.then(data => {
 
@@ -36,7 +36,7 @@ function App() {
 			userSymptoms.push(symptom.value)
 		}
 		
-		fetch(process.env.REACT_APP_HEROKU_URL + "/model", {
+		fetch("/api/model", {
 			method: "POST",
 			headers: {
 				"Content-type": "application/json"
